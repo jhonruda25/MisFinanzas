@@ -103,3 +103,35 @@ export async function logout() {
   await deleteSession();
   redirect('/login');
 }
+
+const userSchema = z.object({
+  name: z.string().min(3, "El nombre es requerido."),
+  email: z.string().email("El email no es válido."),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
+  role: z.enum(['admin', 'user']),
+});
+
+export async function addUser(prevState: any, formData: FormData) {
+  const validatedFields = userSchema.safeParse(Object.fromEntries(formData.entries()));
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Error: Por favor revise los campos.',
+    };
+  }
+
+  // NOTE: This is for demonstration. In a real app, you would save to a database.
+  const newUser = {
+    userId: `user_${Date.now()}`,
+    ...validatedFields.data,
+    passwordHash: validatedFields.data.password, // Remember to hash passwords in a real app!
+    createdAt: new Date().toISOString(),
+  };
+
+  console.log("New User:", newUser);
+  // In a real app, you would push this to your database.
+  // users.push(newUser);
+
+  return { message: "Usuario agregado exitosamente." };
+}

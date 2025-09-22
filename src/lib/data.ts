@@ -10,6 +10,7 @@ export const users: User[] = [
     // In a real application, you should NEVER store plain text passwords.
     // Use a library like bcrypt to hash passwords.
     passwordHash: "password123",
+    role: "admin",
     createdAt: "2025-09-22T08:30:00Z"
   }
 ];

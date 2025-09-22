@@ -10,6 +10,7 @@ import {
   BarChart,
   Settings,
   LogOut,
+  Shield,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -22,6 +23,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
 import { logout } from '@/lib/actions';
+import { users } from '@/lib/data';
 
 const menuItems = [
   {
@@ -45,6 +47,10 @@ const menuItems = [
     icon: BarChart,
   },
 ];
+
+// NOTE: In a real app, you would get the current user from the session.
+// For this demo, we'll just grab the first user.
+const currentUser = users[0];
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -70,6 +76,19 @@ export function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+          {currentUser?.role === 'admin' && (
+             <SidebarMenuItem>
+              <SidebarMenuButton 
+                asChild 
+                isActive={pathname === '/dashboard/admin'}
+                tooltip="Administrador">
+                <Link href="/dashboard/admin">
+                  <Shield />
+                  <span>Administrador</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
