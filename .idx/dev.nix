@@ -17,7 +17,7 @@
     # Disabling because we are using prod backends right now
     detect = false;
     projectId = "demo-app";
-    services = ["auth", "firestore"];
+    services = [ "auth" "firestore" ];
   };
   services.mongodb = {
     enable = true;
@@ -39,7 +39,7 @@
       enable = true;
       previews = {
         web = {
-          command = ["npm", "run", "dev", "--", "--port", "$PORT", "--hostname", "0.0.0.0"];
+          command = [ "npm" "run" "dev" "--" "--port" "$PORT" "--hostname" "0.0.0.0" ];
           manager = "web";
         };
       };
