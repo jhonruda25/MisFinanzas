@@ -2,10 +2,13 @@
 "use server";
 
 import { z } from "zod";
+import { v4 as uuidv4 } from 'uuid';
 import { categorizeTransaction } from "@/ai/flows/categorize-transaction";
-import { users } from '@/lib/data';
 import { createSession, deleteSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
+import clientPromise from '@/lib/mongodb';
+import { User } from '@/lib/definitions';
+import bcrypt from 'bcrypt';
 
 const transactionSchema = z.object({
   type: z.enum(["Ingreso", "Gasto"]),
@@ -81,15 +84,23 @@ export async function authenticate(
   try {
     const { email, password } = LoginSchema.parse(Object.fromEntries(formData.entries()));
     
-    // NOTE: This is a simplified authentication for demonstration purposes.
-    // In a real application, you should securely hash and compare passwords.
-    const user = users.find((u) => u.email === email);
+    const client = await clientPromise;
+    const db = client.db();
+    
+    const user = await db.collection<User>('users').findOne({ email });
 
-    if (!user || user.passwordHash !== password) {
+    if (!user) {
+      return 'Credenciales incorrectas.';
+    }
+
+    const passwordsMatch = await bcrypt.compare(password, user.passwordHash);
+
+    if (!passwordsMatch) {
       return 'Credenciales incorrectas.';
     }
 
     await createSession(user.userId);
+
   } catch (error) {
     if (error instanceof z.ZodError) {
       return 'Error de validación. Revise los campos.';
@@ -121,17 +132,36 @@ export async function addUser(prevState: any, formData: FormData) {
     };
   }
 
-  // NOTE: This is for demonstration. In a real app, you would save to a database.
-  const newUser = {
-    userId: `user_${Date.now()}`,
-    ...validatedFields.data,
-    passwordHash: validatedFields.data.password, // Remember to hash passwords in a real app!
-    createdAt: new Date().toISOString(),
-  };
+  const { name, email, password, role } = validatedFields.data;
 
-  console.log("New User:", newUser);
-  // In a real app, you would push this to your database.
-  // users.push(newUser);
+  try {
+    const client = await clientPromise;
+    const db = client.db();
 
-  return { message: "Usuario agregado exitosamente." };
+    const existingUser = await db.collection('users').findOne({ email });
+    if (existingUser) {
+      return { message: "Un usuario con este email ya existe." };
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const userId = uuidv4();
+
+    const newUser: User = {
+      userId,
+      name,
+      email,
+      passwordHash,
+      role,
+      createdAt: new Date().toISOString(),
+    };
+    
+    const result = await db.collection('users').insertOne(newUser);
+    console.log("New User created:", result.insertedId)
+
+    return { message: "Usuario agregado exitosamente." };
+
+  } catch (error) {
+    console.error("Error adding user:", error);
+    return { message: "Algo salió mal. Por favor, intente de nuevo." };
+  }
 }

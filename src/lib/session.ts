@@ -3,6 +3,8 @@
 
 import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
+import clientPromise from '@/lib/mongodb';
+import { User } from '@/lib/definitions';
 
 const secretKey = process.env.SESSION_SECRET || 'fallback-secret-key-for-development';
 const key = new TextEncoder().encode(secretKey);
@@ -42,4 +44,19 @@ export async function getSession() {
 
 export async function deleteSession() {
   cookies().set('session', '', { expires: new Date(0) });
+}
+
+export async function getCurrentUser() {
+  const session = await getSession();
+  if (!session?.userId) return null;
+
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+    const user = await db.collection<User>('users').findOne({ userId: session.userId });
+    return user;
+  } catch (error) {
+    console.error("Failed to fetch user:", error);
+    return null;
+  }
 }

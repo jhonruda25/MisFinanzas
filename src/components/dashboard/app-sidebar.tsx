@@ -10,7 +10,7 @@ import {
   BarChart,
   Settings,
   LogOut,
-  Shield,
+  Users,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -23,7 +23,9 @@ import {
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
 import { logout } from '@/lib/actions';
-import { users } from '@/lib/data';
+import { getCurrentUser } from '@/lib/session';
+import { useEffect, useState } from 'react';
+import { User } from '@/lib/definitions';
 
 const menuItems = [
   {
@@ -48,12 +50,13 @@ const menuItems = [
   },
 ];
 
-// NOTE: In a real app, you would get the current user from the session.
-// For this demo, we'll just grab the first user.
-const currentUser = users[0];
-
 export function AppSidebar() {
   const pathname = usePathname();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    getCurrentUser().then(setCurrentUser);
+  }, []);
 
   return (
     <Sidebar>
@@ -80,11 +83,11 @@ export function AppSidebar() {
              <SidebarMenuItem>
               <SidebarMenuButton 
                 asChild 
-                isActive={pathname === '/dashboard/admin'}
-                tooltip="Administrador">
-                <Link href="/dashboard/admin">
-                  <Shield />
-                  <span>Administrador</span>
+                isActive={pathname.startsWith('/dashboard/users')}
+                tooltip="Usuarios">
+                <Link href="/dashboard/users">
+                  <Users />
+                  <span>Usuarios</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
