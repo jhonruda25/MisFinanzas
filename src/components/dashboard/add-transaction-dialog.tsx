@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -229,7 +228,7 @@ export function AddTransactionDialog() {
                         <SelectTrigger><SelectValue placeholder="Selecciona una cuenta" /></SelectTrigger>
                         <SelectContent>
                             {accounts.map(account => (
-                                <SelectItem key={account.accountId} value={account.accountId}>{account.accountName}</SelectItem>
+                                <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
@@ -244,7 +243,7 @@ export function AddTransactionDialog() {
                         <SelectTrigger><SelectValue placeholder="Selecciona una categoría" /></SelectTrigger>
                         <SelectContent>
                             {availableCategories.map(cat => (
-                                <SelectItem key={cat.categoryId} value={cat.categoryId}>{cat.name}</SelectItem>
+                                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>

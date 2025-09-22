@@ -10,13 +10,10 @@ type AccountSummaryProps = {
 
 export function AccountSummary({ accounts, transactions }: AccountSummaryProps) {
   const calculateBalance = (account: Account) => {
-    const accountTransactions = transactions.filter(t => t.accountId === account.accountId);
+    const accountTransactions = transactions.filter(t => t.accountId === account.id);
     const balance = accountTransactions.reduce((acc, t) => {
-      if (t.type === 'Ingreso') {
-        return acc + t.amount;
-      }
-      return acc - t.amount;
-    }, account.initialBalance);
+      return acc + t.amount;
+    }, account.balance);
     return balance;
   };
 
@@ -25,14 +22,14 @@ export function AccountSummary({ accounts, transactions }: AccountSummaryProps) 
       <h2 className="text-xl font-headline font-semibold mb-4">Resumen de Cuentas</h2>
       <div className="grid gap-4 md:grid-cols-2">
         {accounts.map(account => (
-          <Card key={account.accountId}>
+          <Card key={account.id}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{account.accountName}</CardTitle>
-              {account.accountType === 'Débito' ? <DollarSign className="h-4 w-4 text-muted-foreground" /> : <CreditCard className="h-4 w-4 text-muted-foreground" />}
+              <CardTitle className="text-sm font-medium">{account.name}</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{formatCurrency(calculateBalance(account))}</div>
-              <p className="text-xs text-muted-foreground">{account.accountType}</p>
+              <p className="text-xs text-muted-foreground">Balance</p>
             </CardContent>
           </Card>
         ))}

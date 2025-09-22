@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { addBudget } from '@/lib/actions';
 import { categories } from '@/lib/data';
@@ -45,25 +45,23 @@ export function AddBudgetDialog() {
   const { toast } = useToast();
   const [state, formAction] = useFormState(addBudget, initialState);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const result = await addBudget(null, formData);
-    
-    if (result?.message.startsWith('Error:')) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: result.message,
-      });
-    } else {
-      toast({
-        title: 'Éxito',
-        description: result.message,
-      });
-      setOpen(false);
+  useEffect(() => {
+    if (state?.message) {
+        if (state.message.startsWith('Error:')) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: state.message,
+            });
+        } else {
+            toast({
+                title: 'Éxito',
+                description: state.message,
+            });
+            setOpen(false);
+        }
     }
-  };
+  }, [state, toast]);
 
   const expenseCategories = categories.filter(c => c.type === 'Gasto');
 
@@ -82,7 +80,7 @@ export function AddBudgetDialog() {
             Define un límite de gasto mensual para una categoría.
           </DialogDescription>
         </DialogHeader>
-        <form action={formAction} onSubmit={handleSubmit} className="space-y-4">
+        <form action={formAction} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="categoryId">Categoría</Label>
             <Select name="categoryId" required>
@@ -91,7 +89,7 @@ export function AddBudgetDialog() {
               </SelectTrigger>
               <SelectContent>
                 {expenseCategories.map(cat => (
-                  <SelectItem key={cat.categoryId} value={cat.categoryId}>{cat.name}</SelectItem>
+                  <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

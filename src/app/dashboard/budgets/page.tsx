@@ -10,24 +10,16 @@ import {
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { formatCurrency } from '@/lib/utils';
-import { AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { CategoryIcon } from '@/lib/icons';
 
 export default function BudgetsPage() {
-  const getCategory = (categoryId: string) => categories.find(c => c.categoryId === categoryId);
+  const getCategory = (categoryId: string) => categories.find(c => c.id === categoryId);
 
   const calculateSpent = (budget: typeof budgets[0]) => {
-    const budgetStart = new Date(budget.startDate);
-    const budgetEnd = new Date(budget.endDate);
-
     return transactions
       .filter(t =>
-        t.categoryId === budget.categoryId &&
-        t.type === 'Gasto' &&
-        new Date(t.date) >= budgetStart &&
-        new Date(t.date) <= budgetEnd
+        t.categoryId === budget.categoryId && t.amount < 0
       )
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
   };
 
   return (
@@ -50,10 +42,9 @@ export default function BudgetsPage() {
           else if (isNearBudget) progressColorClass = 'bg-yellow-500';
 
           return (
-            <Card key={budget.budgetId}>
+            <Card key={budget.id}>
               <CardHeader>
                 <div className="flex items-center gap-2 text-muted-foreground">
-                    {category && <CategoryIcon name={category.icon} className="h-4 w-4" />}
                     <CardDescription>{category?.name}</CardDescription>
                 </div>
                 <CardTitle className="font-headline text-2xl">{formatCurrency(budget.amount)}</CardTitle>

@@ -9,16 +9,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
-import { CategoryIcon } from '@/lib/icons';
 
 export default function TransactionsPage() {
   const sortedTransactions = transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const getCategory = (categoryId: string) => categories.find(c => c.categoryId === categoryId);
-  const getAccountName = (accountId: string) => accounts.find(a => a.accountId === accountId)?.accountName;
+  const getCategory = (categoryId: string) => categories.find(c => c.id === categoryId);
+  const getAccountName = (accountId: string) => accounts.find(a => a.id === accountId)?.name;
 
   return (
     <>
@@ -41,21 +40,20 @@ export default function TransactionsPage() {
               {sortedTransactions.map(t => {
                 const category = getCategory(t.categoryId);
                 return (
-                  <TableRow key={t.transactionId}>
+                  <TableRow key={t.id}>
                     <TableCell className="font-medium">{t.description}</TableCell>
                     <TableCell>{getAccountName(t.accountId)}</TableCell>
                     <TableCell>
                       {category && (
                         <Badge variant="outline" className="flex items-center gap-2 w-fit">
-                          <CategoryIcon name={category.icon} className="h-3 w-3" />
                           {category.name}
                         </Badge>
                       )}
                     </TableCell>
                     <TableCell>{new Date(t.date).toLocaleDateString('es-CO')}</TableCell>
-                    <TableCell className={`text-right font-semibold ${t.type === 'Ingreso' ? 'text-green-600' : ''}`}>
-                      {t.type === 'Gasto' ? '-' : '+'}
-                      {formatCurrency(t.amount)}
+                    <TableCell className={`text-right font-semibold ${t.amount > 0 ? 'text-green-600' : ''}`}>
+                      {t.amount < 0 ? '-' : '+'}
+                      {formatCurrency(Math.abs(t.amount))}
                     </TableCell>
                   </TableRow>
                 );

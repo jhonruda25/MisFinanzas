@@ -4,7 +4,7 @@
 import { z } from "zod";
 import { v4 as uuidv4 } from 'uuid';
 import { categorizeTransaction } from "@/ai/flows/categorize-transaction";
-import { createSession, deleteSession } from '@/lib/session';
+import { deleteSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import clientPromise from '@/lib/mongodb';
 import { User } from '@/lib/definitions';
@@ -99,7 +99,16 @@ export async function authenticate(
       return 'Credenciales incorrectas.';
     }
 
-    await createSession(user.userId);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.userId }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        return errorData.message || 'Error al iniciar sesión.';
+    }
 
   } catch (error) {
     if (error instanceof z.ZodError) {

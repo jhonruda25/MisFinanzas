@@ -12,19 +12,14 @@ type BudgetStatusProps = {
 
 export function BudgetStatus({ budgets, transactions, categories }: BudgetStatusProps) {
   const getCategoryName = (categoryId: string) => {
-    return categories.find(c => c.categoryId === categoryId)?.name || 'Desconocido';
+    return categories.find(c => c.id === categoryId)?.name || 'Desconocido';
   };
 
   const calculateSpent = (budget: Budget) => {
-    const budgetStart = new Date(budget.startDate);
-    const budgetEnd = new Date(budget.endDate);
 
     return transactions
       .filter(t =>
-        t.categoryId === budget.categoryId &&
-        t.type === 'Gasto' &&
-        new Date(t.date) >= budgetStart &&
-        new Date(t.date) <= budgetEnd
+        t.categoryId === budget.categoryId 
       )
       .reduce((sum, t) => sum + t.amount, 0);
   };
@@ -46,7 +41,7 @@ export function BudgetStatus({ budgets, transactions, categories }: BudgetStatus
           else if (isNearBudget) progressColorClass = 'bg-yellow-500';
 
           return (
-            <div key={budget.budgetId} className="grid gap-2">
+            <div key={budget.id} className="grid gap-2">
               <div className="flex items-center justify-between font-semibold">
                 <span>{getCategoryName(budget.categoryId)}</span>
                 <span className="flex items-center gap-2 text-sm">

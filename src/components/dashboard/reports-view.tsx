@@ -37,10 +37,10 @@ export function ReportsView({ transactions, categories, budgets }: ReportsViewPr
       if (!data[month]) {
         data[month] = { month, ingresos: 0, gastos: 0 };
       }
-      if (t.type === 'Ingreso') {
+      if (t.amount > 0) {
         data[month].ingresos += t.amount;
       } else {
-        data[month].gastos += t.amount;
+        data[month].gastos += Math.abs(t.amount);
       }
     });
     return Object.values(data).reverse();
@@ -49,24 +49,24 @@ export function ReportsView({ transactions, categories, budgets }: ReportsViewPr
   const expenseByCategory = useMemo(() => {
     const data: { [key: string]: { name: string; value: number } } = {};
     transactions
-      .filter(t => t.type === 'Gasto')
+      .filter(t => t.amount < 0)
       .forEach(t => {
-        const categoryName = categories.find(c => c.categoryId === t.categoryId)?.name || 'Otros';
+        const categoryName = categories.find(c => c.id === t.categoryId)?.name || 'Otros';
         if (!data[categoryName]) {
           data[categoryName] = { name: categoryName, value: 0 };
         }
-        data[categoryName].value += t.amount;
+        data[categoryName].value += Math.abs(t.amount);
       });
     return Object.values(data);
   }, [transactions, categories]);
 
   const budgetVsActual = useMemo(() => {
     return budgets.map(budget => {
-        const categoryName = categories.find(c => c.categoryId === budget.categoryId)?.name || 'Desconocido';
+        const categoryName = categories.find(c => c.id === budget.categoryId)?.name || 'Desconocido';
         const actual = transactions
-            .filter(t => t.categoryId === budget.categoryId && t.type === 'Gasto')
-            .reduce((sum, t) => sum + t.amount, 0);
-        return { name: categoryName, budget: budget.amount, actual, difference: budget.amount - actual };
+            .filter(t => t.categoryId === budget.categoryId && t.amount < 0)
+            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        return { id: budget.id, name: categoryName, budget: budget.amount, actual, difference: budget.amount - actual };
     });
   }, [budgets, transactions, categories]);
 
@@ -125,7 +125,7 @@ export function ReportsView({ transactions, categories, budgets }: ReportsViewPr
                 </TableHeader>
                 <TableBody>
                     {budgetVsActual.map(item => (
-                        <TableRow key={item.name}>
+                        <TableRow key={item.id}>
                             <TableCell>{item.name}</TableCell>
                             <TableCell className="text-right">{formatCurrency(item.budget)}</TableCell>
                             <TableCell className="text-right">{formatCurrency(item.actual)}</TableCell>

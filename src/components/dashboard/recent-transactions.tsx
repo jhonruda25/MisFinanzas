@@ -10,7 +10,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
-import { CategoryIcon } from '@/lib/icons';
 
 type RecentTransactionsProps = {
   transactions: Transaction[];
@@ -21,8 +20,8 @@ type RecentTransactionsProps = {
 export function RecentTransactions({ transactions, categories, accounts }: RecentTransactionsProps) {
   const recent = transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
 
-  const getCategory = (categoryId: string) => categories.find(c => c.categoryId === categoryId);
-  const getAccountName = (accountId: string) => accounts.find(a => a.accountId === accountId)?.accountName;
+  const getCategory = (categoryId: string) => categories.find(c => c.id === categoryId);
+  const getAccountName = (accountId: string) => accounts.find(a => a.id === accountId)?.name;
 
   return (
     <Card>
@@ -44,7 +43,7 @@ export function RecentTransactions({ transactions, categories, accounts }: Recen
             {recent.map(t => {
               const category = getCategory(t.categoryId);
               return (
-                <TableRow key={t.transactionId}>
+                <TableRow key={t.id}>
                   <TableCell>
                     <div className="font-medium">{t.description}</div>
                     <div className="text-sm text-muted-foreground md:hidden">
@@ -54,15 +53,15 @@ export function RecentTransactions({ transactions, categories, accounts }: Recen
                   <TableCell className="hidden sm:table-cell">
                     {category && (
                       <Badge variant="outline" className="flex items-center gap-2 w-fit">
-                        <CategoryIcon name={category.icon} className="h-3 w-3" />
+                        
                         {category.name}
                       </Badge>
                     )}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">{new Date(t.date).toLocaleDateString('es-CO', {day: 'numeric', month: 'long'})}</TableCell>
-                  <TableCell className={`text-right font-semibold ${t.type === 'Ingreso' ? 'text-green-600' : ''}`}>
-                    {t.type === 'Gasto' ? '-' : '+'}
-                    {formatCurrency(t.amount)}
+                  <TableCell className={`text-right font-semibold ${t.amount > 0 ? 'text-green-600' : ''}`}>
+                    {t.amount < 0 ? '-' : '+'}
+                    {formatCurrency(Math.abs(t.amount))}
                   </TableCell>
                 </TableRow>
               );

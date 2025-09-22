@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { CategoryIcon } from '@/lib/icons';
 
 export default function SettingsPage() {
   return (
@@ -37,9 +36,8 @@ export default function SettingsPage() {
               </TableHeader>
               <TableBody>
                 {categories.map((cat) => (
-                  <TableRow key={cat.categoryId}>
-                    <TableCell className="font-medium flex items-center gap-2">
-                      <CategoryIcon name={cat.icon} className="h-4 w-4" />
+                  <TableRow key={cat.id}>
+                    <TableCell className="font-medium">
                       {cat.name}
                     </TableCell>
                     <TableCell>
@@ -80,15 +78,13 @@ export default function SettingsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nombre</TableHead>
-                  <TableHead>Tipo</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {accounts.map((acc) => (
-                  <TableRow key={acc.accountId}>
-                    <TableCell className="font-medium">{acc.accountName}</TableCell>
-                    <TableCell>{acc.accountType}</TableCell>
+                  <TableRow key={acc.id}>
+                    <TableCell className="font-medium">{acc.name}</TableCell>
                     <TableCell className="text-right">
                        <Button variant="ghost" size="icon">
                         <Edit className="h-4 w-4" />
