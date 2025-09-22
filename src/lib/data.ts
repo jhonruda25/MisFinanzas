@@ -1,3 +1,4 @@
+
 import type { User, Account, Category, Transaction, Budget } from './definitions';
 
 export const users: User[] = [
@@ -5,7 +6,10 @@ export const users: User[] = [
     userId: "user_001",
     name: "Ana García",
     email: "ana.garcia@example.com",
-    passwordHash: "hashed_password_string_example",
+    // NOTE: For demonstration purposes, we are using a plain text password.
+    // In a real application, you should NEVER store plain text passwords.
+    // Use a library like bcrypt to hash passwords.
+    passwordHash: "password123",
     createdAt: "2025-09-22T08:30:00Z"
   }
 ];

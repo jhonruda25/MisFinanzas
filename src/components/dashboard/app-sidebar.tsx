@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -8,6 +9,7 @@ import {
   Target,
   BarChart,
   Settings,
+  LogOut,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -19,6 +21,7 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import { Logo } from '@/components/logo';
+import { logout } from '@/lib/actions';
 
 const menuItems = [
   {
@@ -72,12 +75,25 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Ajustes">
-              <Link href="#">
+            <SidebarMenuButton 
+              asChild 
+              isActive={pathname === '/dashboard/settings'}
+              tooltip="Ajustes">
+              <Link href="/dashboard/settings">
                 <Settings />
                 <span>Ajustes</span>
               </Link>
             </SidebarMenuButton>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <form action={logout}>
+              <SidebarMenuButton asChild tooltip="Cerrar Sesión">
+                  <button className="w-full">
+                      <LogOut />
+                      <span>Cerrar Sesión</span>
+                  </button>
+              </SidebarMenuButton>
+            </form>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

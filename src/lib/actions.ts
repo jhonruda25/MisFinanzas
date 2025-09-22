@@ -1,7 +1,11 @@
+
 "use server";
 
 import { z } from "zod";
 import { categorizeTransaction } from "@/ai/flows/categorize-transaction";
+import { users } from '@/lib/data';
+import { createSession, deleteSession } from '@/lib/session';
+import { redirect } from 'next/navigation';
 
 const transactionSchema = z.object({
   type: z.enum(["Ingreso", "Gasto"]),
@@ -58,8 +62,44 @@ export async function getAiCategorySuggestion(description: string, userId: strin
   try {
     const result = await categorizeTransaction({ description, userId });
     return { suggestion: result.categoryId, error: null };
-  } catch (error) {
+  } catch (error)
+ {
     console.error("AI categorization failed:", error);
     return { suggestion: null, error: "No se pudo obtener la sugerencia de IA." };
   }
+}
+
+const LoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
+
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  try {
+    const { email, password } = LoginSchema.parse(Object.fromEntries(formData.entries()));
+    
+    // NOTE: This is a simplified authentication for demonstration purposes.
+    // In a real application, you should securely hash and compare passwords.
+    const user = users.find((u) => u.email === email);
+
+    if (!user || user.passwordHash !== password) {
+      return 'Credenciales incorrectas.';
+    }
+
+    await createSession(user.userId);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return 'Error de validación. Revise los campos.';
+    }
+    return 'Algo salió mal. Por favor, intente de nuevo.';
+  }
+  redirect('/dashboard');
+}
+
+export async function logout() {
+  await deleteSession();
+  redirect('/login');
 }
